@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("public") // admin, manager, public
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  date        DateTime
+  description String
+  debit       Float    @default(0)
+  credit      Float    @default(0)
+  balance     Float    @default(0)
+  category    String   @default("Lainnya") // Pemasukan, Pengeluaran, Transfer, Lainnya
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator User?  @relation(fields: [createdBy], references: [id])
+}
+
+model Settings {
+  id            String @id @default(cuid())
+  key           String @unique
+  value         String
+  updatedAt     DateTime @updatedAt
+}
